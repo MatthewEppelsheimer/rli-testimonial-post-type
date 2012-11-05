@@ -82,7 +82,7 @@ function rli_testimonial_show_testimonials( $args, $template_callback ) {
 
 	global $post;
 
-	$testimonials = rli_testimonial_query_testimonial( $args );
+	$testimonials = rli_testimonial_query_testimonials( $args );
 	
 	if ( $testimonials->have_posts() ) {
 		$output = "";
@@ -101,25 +101,45 @@ function rli_testimonial_show_testimonials( $args, $template_callback ) {
 	return false;
 }
 
-/*
- *	rli_testimonial_query_testimonial( $args ) is a wrapper for WP_Query to get rli_testimonial
- *	posts for use in a custom loop.
+/**
+ * RLI Utility to get get custom posts of a given type
  *
- *	@param $args an an array of arguments formatted to pass to WP_Query
+ *	@param		str		$post_type	The post type to query for
+ *	@param		array	$args	Array of arguments formulated to pass to the WP_Query class constructor
+ *	@param		array	$defaults_override	Array of default arguments formulated to pass to the 
+ *						WP_Query class constructor and override the utility's own defaults
+ *	@returns			an array of WP_Query results of the custom post type passed
  *
- *	@returns array of query results, regardless of query results
+ *	@since		2012/11/01
  */
 
-function rli_testimonial_query_testimonial( $args ) {
-	$defaults = array(
-		'orderby' => 'title',
-		'order' => 'ASC',
-		'posts_per_page' => -1
-	);
-	$query_args = wp_parse_args( $defaults, $args );
-	$query_args['post_type'] = 'rli_testimonial';
-
-	$testimonials = new WP_Query( $query_args);
+if ( ! function_exists( 'rli_library_get_custom_posts' ) ) {
+	function rli_library_get_custom_posts( $post_type, $args, $defaults_override = array() ) {
+		$defaults = array(
+			'posts_per_page' => -1,
+			'order' => 'ASC',
+			'orderby' => 'menu_order'
+		);
+		$new_defaults = wp_parse_args( $defaults, $defaults_override );
+		$query_args = wp_parse_args( $new_defaults, $args );
+		$query_args['post_type'] = $post_type;
 	
-	return $testimonials;
+		$results = new WP_Query( $query_args );
+	
+		return $results;
+	}
+}
+
+/**
+ * Utility to query testimonials
+ *
+ *	@param		array	$args	Array of arguments formulated to pass to the WP_Query class constructor
+ *	@returns	an array of WP_Query results with rli_testimonial posts
+ *
+ *	@uses		rli_library_get_custom_posts()
+ *	@since		version 0.4
+ */
+
+function rli_testimonial_query_testimonials( $args = array() ) {
+	return rli_library_get_custom_posts( 'rli_testimonial', $args );
 }
