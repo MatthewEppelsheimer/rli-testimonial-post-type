@@ -172,13 +172,13 @@ class rli_testimonial_widget extends WP_Widget {
 		$instance = wp_parse_args( (array) $instance, $defaults );
 		$title = $instance['title'];
 		$number = $instance['number'];
-		$orderby = $instance['menu_order']
+		$orderby = $instance['orderby'];
 
 		$output = "<p>" . __( 'Widget Title', 'rli_testimonials' ) . ": <input class='widefat' name='" . $this->get_field_name( 'title' ) . "' type='text' value='" . esc_attr( $title ) . "' /></p>";
 		$output .= "<p>" . __( 'Number of testimonials to display', 'rli_testimonials' ) . ": <input class='widefat' name='" . $this->get_field_name( 'number' ) . "' type='text' value='" . esc_attr( $number ) . "' /></p>";
 		$output .= "<p>" . __( 'Order by', 'rli_testimonials' ) . ": <select name='" . $this->get_field_name( 'orderby' ) . "'>";
-			$output .= "<option value='menu_order' " . selected( $orderby, 'menu_order' ) . ">" . __( 'Manual (drag and drop)', 'rli_testimonials' ) . "</option>";
-			$output .= "<option value='date' " . selected( $orderby, 'date' ) . ">" . __( 'Latest (publish date)', 'rli_testimonials' ) . "</option>";
+			$output .= "<option value='menu_order' " . selected( $orderby, 'menu_order', false ) . ">" . __( 'Manual (drag and drop)', 'rli_testimonials' ) . "</option>";
+			$output .= "<option value='date' " . selected( $orderby, 'date', false ) . ">" . __( 'Latest (publish date)', 'rli_testimonials' ) . "</option>";
 		$output .= "</select></p>";
 
 		echo $output;
@@ -216,7 +216,7 @@ class rli_testimonial_widget extends WP_Widget {
 		$output = $instance['before_widget'];
 		$output .= "<ul>";
 		if ( ! empty( $title ) )
-			output .= $instance['before_title'] . $title . $instance['after_title'];
+			$output .= $instance['before_title'] . $title . $instance['after_title'];
 		foreach ( $testimonials as $testimonial ) {
 			$output .= $template( $testimonial );
 		}
