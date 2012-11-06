@@ -9,6 +9,9 @@ Author URI: http://rocketlift.com/
 License: GPL 2
 */
 
+/*
+	@TODO declare text domain
+*/
 
 function rli_testimonial_register() {
 	register_post_type( 'rli_testimonial' , array( 
@@ -142,4 +145,97 @@ if ( ! function_exists( 'rli_library_get_custom_posts' ) ) {
 
 function rli_testimonial_query_testimonials( $args = array() ) {
 	return rli_library_get_custom_posts( 'rli_testimonial', $args );
+}
+
+/**
+ *	Testimonials Widgets
+ */
+
+class rli_testimonial_widget extends WP_Widget {
+
+	// register the widget
+	function rli_testimonial_widget() {
+		$widget_options = array(
+			'classname' => 'rli_testimonial_widget',
+			'description' => 'Display a list of testimonials.'
+		);
+		$this->WP_Widget( 'rli_testimonial_widget', 'Testimonials Widget' );
+	}
+
+	// build the widget's admin form
+	function form( $instance ) {
+		$defaults = array(
+			'title' => 'Testimonials',
+			'number' => 3,
+			'orderby' => 'menu_order'
+		);
+		$instance = wp_parse_args( (array) $instance, $defaults );
+		$title = $instance['title'];
+		$number = $instance['number'];
+		$orderby = $instance['menu_order']
+
+		$output = "<p>" . __( 'Widget Title', 'rli_testimonials' ) . ": <input class='widefat' name='" . $this->get_field_name( 'title' ) . "' type='text' value='" . esc_attr( $title ) . "' /></p>";
+		$output .= "<p>" . __( 'Number of testimonials to display', 'rli_testimonials' ) . ": <input class='widefat' name='" . $this->get_field_name( 'number' ) . "' type='text' value='" . esc_attr( $number ) . "' /></p>";
+		$output .= "<p>" . __( 'Order by', 'rli_testimonials' ) . ": <select name='" . $this->get_field_name( 'orderby' ) . "'>";
+			$output .= "<option value='menu_order' " . selected( $orderby, 'menu_order' ) . ">" . __( 'Manual (drag and drop)', 'rli_testimonials' ) . "</option>";
+			$output .= "<option value='date' " . selected( $orderby, 'date' ) . ">" . __( 'Latest (publish date)', 'rli_testimonials' ) . "</option>";
+		$output .= "</select></p>";
+
+		echo $output;
+	}
+
+	// save widget settings
+	function update( $new_instance, $old_instance ) {
+		$instance = $old_instance;
+		$instance['title'] = strip_tags( $new_instance['title'] );
+		$instance['number'] = strip_tags( $new_instance['number'] );
+		$instance['orderby'] = strip_tags( $new_instance['orderby'] );
+
+		return $instance;
+	}
+
+	// display the widget
+	function widget( $args, $instance ) {
+		// prepare settings
+		$title = apply_filters( 'widget_title', $instance['title'] );
+		$number = empty( $instance['number'] ) ? 3 : $instance['number'];
+		$orderby = empty( $instance['orderby'] ) ? 'date' : $instance['orderby'];
+
+		// get testimonials based on settings
+		$testimonials = rli_query_testimonials( 
+			array(
+				'orderby' => $orderby,
+				'posts_per_page' => $number
+			)
+		);
+
+		// filterable display template
+		$template = apply_filters( 'rli_testimonial_widget_template', 'rli_testimonial_widget_display_template_default' );
+
+		// build and echo output
+		$output = $instance['before_widget'];
+		$output .= "<ul>";
+		if ( ! empty( $title ) )
+			output .= $instance['before_title'] . $title . $instance['after_title'];
+		foreach ( $testimonials as $testimonial ) {
+			$output .= $template( $testimonial );
+		}
+		$output .= "</ul>";
+		$output .= $instance['after_widget'];
+
+		echo $output;
+	}
+}
+
+// Register widget
+function rli_testimonial_register_widget() {
+	register_widget( 'rli_testimonial_widget' );
+}
+
+add_action( 'widgets_init', 'rli_testimonial_register_widget' );
+
+// Default widget display template
+function rli_testimonial_widget_display_template_default( $testimonial ) {
+	$output = "<li class='rli-testimonial'><span class='rli-testimonial-content'>" . get_the_content( $testimonial->ID ) . " &mdash; <span class='rli-testimonial-author'>" . get_the_title( $testimonial->ID ) . "</span></li>";
+	return $output;
 }
