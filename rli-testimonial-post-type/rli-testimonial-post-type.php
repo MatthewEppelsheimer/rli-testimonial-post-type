@@ -197,12 +197,13 @@ class rli_testimonial_widget extends WP_Widget {
 	// display the widget
 	function widget( $args, $instance ) {
 		// prepare settings
+		global $post;
 		$title = apply_filters( 'widget_title', $instance['title'] );
 		$number = empty( $instance['number'] ) ? 3 : $instance['number'];
 		$orderby = empty( $instance['orderby'] ) ? 'date' : $instance['orderby'];
 
 		// get testimonials based on settings
-		$testimonials = rli_query_testimonials( 
+		$testimonials = rli_testimonial_query_testimonials( 
 			array(
 				'orderby' => $orderby,
 				'posts_per_page' => $number
@@ -213,17 +214,25 @@ class rli_testimonial_widget extends WP_Widget {
 		$template = apply_filters( 'rli_testimonial_widget_template', 'rli_testimonial_widget_display_template_default' );
 
 		// build and echo output
-		$output = $instance['before_widget'];
-		$output .= "<ul>";
-		if ( ! empty( $title ) )
-			$output .= $instance['before_title'] . $title . $instance['after_title'];
-		foreach ( $testimonials as $testimonial ) {
-			$output .= $template( $testimonial );
-		}
-		$output .= "</ul>";
-		$output .= $instance['after_widget'];
+		$output = '';
+		if ( ! empty( $args['before_widget'] ) )
+			$output = $args['before_widget'];
+		if ( $testimonials->have_posts() ) {
+			if ( ! empty( $title ) )
+				$output .= $args['before_title'] . $title . $args['after_title'];
+			$output .= "<ul>";
+			while ( $testimonials->have_posts() ) {
+				$testimonials->the_post();
+				$output .= $template();
+			}
+			$output .= "</ul>";
+			if ( ! empty( $args['after_widget'] ) )
+				$output .= $args['after_widget'];
 
-		echo $output;
+			echo $output;
+		}
+
+		wp_reset_query();
 	}
 }
 
@@ -235,7 +244,8 @@ function rli_testimonial_register_widget() {
 add_action( 'widgets_init', 'rli_testimonial_register_widget' );
 
 // Default widget display template
-function rli_testimonial_widget_display_template_default( $testimonial ) {
-	$output = "<li class='rli-testimonial'><span class='rli-testimonial-content'>" . get_the_content( $testimonial->ID ) . " &mdash; <span class='rli-testimonial-author'>" . get_the_title( $testimonial->ID ) . "</span></li>";
+function rli_testimonial_widget_display_template_default() {
+	global $post;
+	$output = "<li class='rli-testimonial'><span class='rli-testimonial-content'>" . get_the_content() . " &mdash; <span class='rli-testimonial-author'>" . get_the_title() . "</span></li>";
 	return $output;
 }
