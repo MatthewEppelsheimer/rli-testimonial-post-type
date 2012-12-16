@@ -123,8 +123,8 @@ if ( ! function_exists( 'rli_library_get_custom_posts' ) ) {
 			'order' => 'ASC',
 			'orderby' => 'menu_order'
 		);
-		$new_defaults = wp_parse_args( $defaults, $defaults_override );
-		$query_args = wp_parse_args( $new_defaults, $args );
+		$new_defaults = wp_parse_args( $defaults_override, $defaults );
+		$query_args = wp_parse_args( $args, $new_defaults );
 		$query_args['post_type'] = $post_type;
 	
 		$results = new WP_Query( $query_args );
