@@ -1,10 +1,10 @@
 <?php
 /*
 Plugin Name: Rocket Lift Testimonial Post Type
-Version: 1.0
-Plugin URI: http://rocketlift.com/software/testimonials-post-type
+Version: 1.1
+Plugin URI: http://rocketlift.com/software/rli-testimonials
 Description: Adds a custom post type called 'Testimonial'.
-Author: Matthew Eppelsheimer
+Author: Matthew Eppelsheimer and Rocket Lift
 Author URI: http://rocketlift.com/
 License: GPL 2
 */
