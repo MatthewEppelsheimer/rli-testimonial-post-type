@@ -9,10 +9,6 @@ Author URI: http://rocketlift.com/
 License: GPL 2
 */
 
-/*
-	@TODO declare text domain
-*/
-
 function rli_testimonial_register() {
 	register_post_type( 'rli_testimonial' , array( 
 		'public' => true,
@@ -43,13 +39,12 @@ function rli_testimonial_register() {
 add_action( 'init', 'rli_testimonial_register' );
 
 // include rli_testimonial posts in tag pages 
-// see www.slideshare.net/andrewnacin/you-dont0know-query-wordcamp-portland-2011 circa slide #45
+// CURRENTLY DISABLED
 function rli_testimonial_include_testimonials_in_query( $query ) {
 	if ( $query->is_tag() )
 		$query->set( 'post_type', 'rli_testimonial' );
 		$query->set( 'posts_per_page', '-1' );
 }
-
 // add_action( 'pre_get_posts', 'rli_testimonial_include_testimonials_in_query' );
 
 // add rules
@@ -62,14 +57,12 @@ function rli_testimonial_post_type_activation() {
 	rli_testimonial_post_type_add_rules();
 	flush_rewrite_rules();
 }
-
 register_activation_hook( __FILE__, 'rli_testimonial_post_type_activation' );
 
 // deactivation
 function rli_testimonial_post_type_deactivation() {
 	flush_rewrite_rules();
 }
-
 register_deactivation_hook( __FILE__, 'rli_testimonial_post_type_deactivation' );
 
 /*
@@ -81,7 +74,7 @@ register_deactivation_hook( __FILE__, 'rli_testimonial_post_type_deactivation' )
  *	@return true if we output html with testimonials; false if not
  */
 
-function rli_testimonial_show_testimonials( $args, $template_callback ) {
+function rli_testimonial_show_testimonials( $args, $template_callback = 'rli_testimonial_widget_display_template_default' ) {
 
 	global $post;
 
