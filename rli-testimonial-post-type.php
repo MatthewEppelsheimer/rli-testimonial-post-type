@@ -285,8 +285,6 @@ class rli_testimonial_widget extends WP_Widget {
 			);
 		}
 		
-		echo "category: "; 
-		print_r( $category );
 		// query testimonials based on args
 		$testimonials = rli_testimonial_query_testimonials( $query_args );
 
