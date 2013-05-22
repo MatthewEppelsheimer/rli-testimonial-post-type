@@ -234,6 +234,7 @@ class rli_testimonial_widget extends WP_Widget {
 		$output .= "<p>" . __( 'Order by', 'rli_testimonials' ) . ": <select name='" . $this->get_field_name( 'orderby' ) . "'>";
 			$output .= "<option value='menu_order' " . selected( $orderby, 'menu_order', false ) . ">" . __( 'Manual (drag and drop)', 'rli_testimonials' ) . "</option>";
 			$output .= "<option value='date' " . selected( $orderby, 'date', false ) . ">" . __( 'Latest (publish date)', 'rli_testimonials' ) . "</option>";
+			$output .= "<option value='rand' " . selected( $orderby, 'rand', false ) . ">" . __( 'Random', 'rli_testimonials' ) . "</option>";
 		$output .= "</select></p>";
 
 		// Category selector
