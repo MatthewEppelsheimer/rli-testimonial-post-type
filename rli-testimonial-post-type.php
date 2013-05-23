@@ -114,7 +114,7 @@ register_deactivation_hook( __FILE__, 'rli_testimonial_post_type_deactivation' )
  *
  *	@param $args an array of $args formatted for WP_Query to accept
  *	
- *	@return true if we output html with testimonials; false if not
+ *	@return output if we output html with testimonials; false if not
  */
 
 function rli_testimonial_show_testimonials( $args, $template_callback = 'rli_testimonial_widget_display_template_default' ) {
@@ -135,7 +135,6 @@ function rli_testimonial_show_testimonials( $args, $template_callback = 'rli_tes
 		wp_reset_query();
 		return $output;
 	}
-	
 	wp_reset_query();
 	return false;
 }
@@ -326,6 +325,89 @@ add_action( 'widgets_init', 'rli_testimonial_register_widget' );
 // Default widget display template
 function rli_testimonial_widget_display_template_default() {
 	global $post;
-	$output = "<li class='rli-testimonial'><span class='rli-testimonial-content'>" . get_the_content() . " &mdash; <span class='rli-testimonial-author'>" . get_the_title() . "</span></li>";
+	$output = "<li class='rli-testimonial'><span class='rli-testimonial-content'>" . get_the_content() . "</span> &mdash; <span class='rli-testimonial-author'>" . get_the_title() . "</span></li>";
+	return $output;
+}
+
+// Shortcode
+
+function rli_testimonial_register_shortcodes() {
+	add_shortcode( 'testimonial', 'rli_testimonial_shortcode' );
+}
+add_action( 'init', 'rli_testimonial_register_shortcodes' );
+
+/*
+ *	Creates a shortcode to display a list of people on demand
+ *
+ *	Supports the 'category' keyword.
+ */
+
+function rli_testimonial_shortcode( $atts ) {
+
+	// Treat 'cat' and 'category' inputs interchangably
+	if ( ! empty( $atts['cat'] ) )
+		$atts['category'] = $atts['cat'];
+
+	// Set up default shortcode attributes
+	$atts = shortcode_atts( 
+		array( 
+			'category'	=>	'',
+			'num'		=>	null,
+			'order'		=>	apply_filters( 'rli_testimonial_shortcode_default_orderby', 'date' ),
+			'header'		=>	null,
+			'headerwrap'	=>	apply_filters( 'rli_testimonial_shortcode_default_header_wrapper', 'h3' )
+		), 
+		$atts
+	);
+	
+	// Prepare query args based on shortcode attributes
+	$query_args = array();
+	
+	// Handle category shortcode attribute
+	if ( '' != $atts['category'] )
+		$query_args['tax_query'] = array(
+			array( 
+				'taxonomy'	=>	'rli_testimonial_category',
+				'field'		=>	'slug',
+				'terms'		=>	$atts['category']
+			)
+		);
+
+	// Handle number of posts to show
+	if ( ! empty( $atts['num'] ) ) 
+		$query_args['posts_per_page'] = $atts['num'];
+	
+	// Handle post order
+	$query_args['orderby'] = $atts['order'];
+
+	// Get testimonials
+	$testimonials = rli_testimonial_show_testimonials( $query_args, apply_filters( 'rli_testimonial_shortcode_template', 'rli_testimonial_shortcode_display_template_default' ) );
+		
+	// Bail if there are none
+	if ( false == $testimonials )
+		return false;
+
+	// Build and display header	
+	$header_text = '';
+	if ( null != $atts['header'] ) { // if header is not null, show the header
+		$header_text = $atts['header'];
+	} else if ( ! empty( $atts['category'] ) ) { // if cat is set, display the title based on category
+		// translate cat slug into name
+		$category_name = get_term_by( 'slug', $atts['category'], 'rli_testimonial_category' )->name;
+		$header_text = "Testimonials from " . $category_name;
+	} else { // otherwise, display "Testionials" title
+		$header_text = "Testimonials";
+	}
+	if ( '' != $header_text )
+		echo "<" . $atts['headerwrap'] . ">$header_text</" . $atts['headerwrap'] . ">";
+
+	// Display testimonials
+	echo $testimonials;
+}
+
+// Default shortcode display template
+function rli_testimonial_shortcode_display_template_default() {
+	global $post;
+	$output = "<p class='rli-testimonial'><span class='rli-testimonial-content'>" . get_the_content() . "</span> &mdash; <span class='rli-testimonial-author'>" . get_the_title() . "</span></p>";
 	return $output;
 }
