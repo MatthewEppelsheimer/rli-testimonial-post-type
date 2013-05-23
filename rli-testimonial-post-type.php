@@ -17,7 +17,8 @@ function rli_testimonial_register() {
 		'supports' =>  array(
 			'title',
 			'editor',
-			'excerpt'
+			'excerpt',
+			'page-attributes'
 		),
 		'query_var' => 'rli_testimonial',
 		'rewrite' =>  array(
