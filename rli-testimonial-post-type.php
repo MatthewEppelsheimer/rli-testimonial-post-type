@@ -324,7 +324,6 @@ add_action( 'widgets_init', 'rli_testimonial_register_widget' );
 
 // Default widget display template
 function rli_testimonial_widget_display_template_default() {
-	global $post;
 	$output = "<li class='rli-testimonial'><span class='rli-testimonial-content'>" . get_the_content() . "</span> &mdash; <span class='rli-testimonial-author'>" . get_the_title() . "</span></li>";
 	return $output;
 }
