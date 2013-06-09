@@ -129,7 +129,7 @@ function rli_testimonial_show_testimonials( $args, $template_callback = 'rli_tes
 			$testimonials->the_post();
 			
 			/*	BUILD HTML	*/
-			$output .= $template_callback( $post );
+			$output .= $template_callback();
 			
 		}
 		wp_reset_query();
