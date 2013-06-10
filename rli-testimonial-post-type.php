@@ -14,6 +14,8 @@ License: GPL 2
 function rli_testimonial_register() {
 	register_post_type( 'rli_testimonial' , array( 
 		'public' => true,
+		'exclude_from_search' => true,
+		'publicly_queryable' => false,
 		'supports' =>  array(
 			'title',
 			'editor',
