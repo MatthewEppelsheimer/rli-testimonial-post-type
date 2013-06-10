@@ -411,11 +411,13 @@ function rli_testimonial_shortcode( $atts ) {
 	} else { // otherwise, display "Testionials" title
 		$header_text = "Testimonials";
 	}
+	$out = '';
 	if ( '' != $header_text )
-		echo "<" . $atts['headerwrap'] . ">$header_text</" . $atts['headerwrap'] . ">";
+		$out .= "<" . $atts['headerwrap'] . ">$header_text</" . $atts['headerwrap'] . ">";
 
 	// Display testimonials
-	echo $testimonials;
+	$out .= $testimonials;
+	return $out;
 }
 
 // Default shortcode display template
