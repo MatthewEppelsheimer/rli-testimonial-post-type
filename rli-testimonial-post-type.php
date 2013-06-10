@@ -109,15 +109,17 @@ function rli_testimonial_post_type_deactivation() {
 register_deactivation_hook( __FILE__, 'rli_testimonial_post_type_deactivation' );
 
 /*
- *	rli_testimonial_show_testimonials() takes query arguments for rli_testimonial and 
+ *	rli_testimonial_get_testimonials() takes query arguments for rli_testimonial and 
  *	performs the query, manages a custom loop, and echoes html
  *
  *	@param $args an array of $args formatted for WP_Query to accept
+ *  @param $template_callback a callback template to output html within the loop
+ *  @param $loop_args an array with 'before' and 'after' keys for inside the "if" and outside "while"
  *	
  *	@return output if we output html with testimonials; false if not
  */
 
-function rli_testimonial_show_testimonials( $args, $template_callback = 'rli_testimonial_widget_display_template_default' ) {
+function rli_testimonial_get_testimonials( $args = array(), $template_callback = 'rli_testimonial_widget_display_template_default', $loop_args = array() ) {
 
 	global $post;
 
@@ -125,13 +127,21 @@ function rli_testimonial_show_testimonials( $args, $template_callback = 'rli_tes
 	
 	if ( $testimonials->have_posts() ) {
 		$output = "";
+
+		if ( ! empty( $loop_args['before'] ) )
+			$output .= $loop_args['before'];
+
 		while ( $testimonials->have_posts() ) {
 			$testimonials->the_post();
-			
+
 			/*	BUILD HTML	*/
 			$output .= $template_callback();
-			
+
 		}
+
+		if ( ! empty( $loop_args['after'] ) )
+			$output .= $loop_args['after'];
+
 		wp_reset_query();
 		return $output;
 	}
@@ -286,32 +296,30 @@ class rli_testimonial_widget extends WP_Widget {
 			);
 		}
 		
-		// query testimonials based on args
-		$testimonials = rli_testimonial_query_testimonials( $query_args );
-
-		// filterable display template (a callback function)
-		$template = apply_filters( 'rli_testimonial_widget_template', 'rli_testimonial_widget_display_template_default' );
-
-		// build and echo output
+		// Begin output
 		$output = '';
 		if ( ! empty( $args['before_widget'] ) )
 			$output = $args['before_widget'];
-		if ( $testimonials->have_posts() ) {
-			if ( ! empty( $title ) )
-				$output .= $args['before_title'] . $title . $args['after_title'];
-			$output .= "<ul>";
-			while ( $testimonials->have_posts() ) {
-				$testimonials->the_post();
-				$output .= $template();
-			}
-			$output .= "</ul>";
-			if ( ! empty( $args['after_widget'] ) )
-				$output .= $args['after_widget'];
 
-			echo $output;
-		}
+		// Prepare output for before and after content inside the loop
+		$loop_args = array();
+		if ( ! empty( $title ) )
+			$loop_args['before'] = $args['before_title'] . $title . $args['after_title'] . "\n";
+		$loop_args['before'] .= "<ul>";
+		$loop_args['after'] .= "</ul>";
 
-		wp_reset_query();
+		// query and echo testimonials based on args, with filterable display template callback
+		$output .= rli_testimonial_get_testimonials( 
+			$query_args 
+			, apply_filters( 'rli_testimonial_widget_template', 'rli_testimonial_widget_display_template_default' )
+			, apply_filters( 'rli_testimonial_widget_loop_args', $loop_args )
+		 );
+
+		// Complete output
+		if ( ! empty( $args['after_widget'] ) )
+			$output .= $args['after_widget'];
+		
+		echo $output;
 	}
 }
 
@@ -380,7 +388,11 @@ function rli_testimonial_shortcode( $atts ) {
 	$query_args['orderby'] = $atts['order'];
 
 	// Get testimonials
-	$testimonials = rli_testimonial_show_testimonials( $query_args, apply_filters( 'rli_testimonial_shortcode_template', 'rli_testimonial_shortcode_display_template_default' ) );
+	$testimonials = rli_testimonial_get_testimonials( 
+		$query_args
+		, apply_filters( 'rli_testimonial_shortcode_template', 'rli_testimonial_shortcode_display_template_default' )
+		, apply_filters( 'rli_testimonial_shortcode_loop_args', array() )
+	 );
 		
 	// Bail if there are none
 	if ( false == $testimonials )
