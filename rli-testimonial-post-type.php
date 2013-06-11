@@ -111,8 +111,25 @@ function rli_testimonial_post_type_deactivation() {
 register_deactivation_hook( __FILE__, 'rli_testimonial_post_type_deactivation' );
 
 /*
- *	rli_testimonial_get_testimonials() takes query arguments for rli_testimonial and 
+ *	rli_testimonial_testimonials() takes query arguments for rli_testimonial and 
  *	performs the query, manages a custom loop, and echoes html
+ *
+ *	@param $args an array of $args formatted for WP_Query to accept
+ *  @param $template_callback a callback template to output html within the loop
+ *  @param $loop_args an array with 'before' and 'after' keys for inside the "if" and outside "while"
+ *	
+ *
+ *  @uses rli_testimonial_get_testimonials()
+ *	@return output if we output html with testimonials; false if not
+ */
+
+function rli_testimonial_testimonials( $args = array(), $template_callback = 'rli_testimonial_widget_display_template_default', $loop_args = array() ) {
+	echo rli_testimonial_get_testimonials( $args, $template_callback, $loop_args );
+}
+
+/*
+ *	rli_testimonial_get_testimonials() takes query arguments for rli_testimonial and 
+ *	performs the query, manages a custom loop, and returns html
  *
  *	@param $args an array of $args formatted for WP_Query to accept
  *  @param $template_callback a callback template to output html within the loop
@@ -122,8 +139,6 @@ register_deactivation_hook( __FILE__, 'rli_testimonial_post_type_deactivation' )
  */
 
 function rli_testimonial_get_testimonials( $args = array(), $template_callback = 'rli_testimonial_widget_display_template_default', $loop_args = array() ) {
-
-	global $post;
 
 	$testimonials = rli_testimonial_query_testimonials( $args );
 	
