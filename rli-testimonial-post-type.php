@@ -319,7 +319,10 @@ class rli_testimonial_widget extends WP_Widget {
 			$output = $args['before_widget'];
 
 		// Prepare output for before and after content inside the loop
-		$loop_args = array();
+		$loop_args = array(
+			'before' => '',
+			'after' => ''
+		);
 		if ( ! empty( $title ) )
 			$loop_args['before'] = $args['before_title'] . $title . $args['after_title'] . "\n";
 		$loop_args['before'] .= "<ul>";
