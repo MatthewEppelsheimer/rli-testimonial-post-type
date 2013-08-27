@@ -330,7 +330,7 @@ class rli_testimonial_widget extends WP_Widget {
 
 		// query and echo testimonials based on args, with filterable display template callback
 		$output .= rli_testimonial_get_testimonials( 
-			$query_args 
+			apply_filters( 'rli_testimonial_widget_query_args', $query_args )
 			, apply_filters( 'rli_testimonial_widget_template', 'rli_testimonial_widget_display_template_default' )
 			, apply_filters( 'rli_testimonial_widget_loop_args', $loop_args )
 		 );
